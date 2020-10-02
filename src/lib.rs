@@ -1,3 +1,24 @@
+#![warn(missing_docs)]
+//! An easy to use OAuth2 client flow library based on [oauth2-rs](https://docs.rs/oauth2/).
+//! ```rust,no_run
+//! # fn main() -> Result<(), ezoauth::Error> {
+//! let config = ezoauth::OAuthConfig {
+//!     auth_url: "https://discord.com/api/oauth2/authorize".into(),
+//!     token_url: "https://discord.com/api/oauth2/token".into(),
+//!     redirect_url: "http://localhost:8000",
+//!     client_id: "...".into(),
+//!     client_secret: "...".into(),
+//!     scopes: vec!["identify".into()],
+//! };
+//! let (rx, auth_url) = ezoauth::authenticate(config, "localhost:8000".to_string())?;
+//!
+//! println!("Browse to {}", auth_url);
+//!
+//! let token = rx.recv().unwrap()?;
+//! # Ok(())
+//! # }
+//! ```
+
 mod error;
 mod server;
 
@@ -12,6 +33,7 @@ use oauth2::{
     Scope, TokenResponse, TokenUrl,
 };
 
+/// A token response, which contains the access and refresh token as well as metadata like scopes, expiry info and the token type
 pub struct Token(BasicTokenResponse);
 impl std::fmt::Debug for Token {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
@@ -25,6 +47,7 @@ impl std::fmt::Debug for Token {
     }
 }
 
+#[allow(missing_docs)]
 impl Token {
     fn from_response(token_response: BasicTokenResponse) -> Self {
         Token(token_response)
@@ -51,7 +74,9 @@ impl Token {
     }
 }
 
+/// Used to specify how you want to perform your OAuth authentication.
 #[derive(Debug, Clone)]
+#[allow(missing_docs)]
 pub struct OAuthConfig {
     pub auth_url: String,
     pub token_url: String,
@@ -61,9 +86,11 @@ pub struct OAuthConfig {
     pub scopes: Vec<String>,
 }
 
-/// ```rust,no_run
-/// use ezoauth::OAuthConfig;
+/// The `authenticate` function performs the OAuth2 flow.
 ///
+/// It starts a webserver in a background thread which listens on the `listen_on` parameter and should be accessible from the `config`'s [`redirect_url`](OAuthConfig#structfield.redirect_url).
+/// # Example
+/// ```rust,no_run
 /// const AUTH_URL: &'static str = "https://discord.com/api/oauth2/authorize";
 /// const TOKEN_URL: &'static str = "https://discord.com/api/oauth2/token";
 ///
@@ -83,13 +110,12 @@ pub struct OAuthConfig {
 /// };
 /// let (rx, auth_url) = ezoauth::authenticate(config, listen_on)?;
 ///
-/// println!("Browse to: {}\n", auth_url);
+/// println!("Browse to {}", auth_url);
 ///
 /// let token = rx.recv().unwrap()?;
 ///
 /// println!("Token: {:?}", token);
-///
-/// Ok(())
+/// # Ok(())
 /// # }
 /// ```
 pub fn authenticate(
