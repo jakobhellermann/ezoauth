@@ -22,7 +22,7 @@ fn main() -> Result<(), ezoauth::Error> {
 
     let token = rx.recv().unwrap()?;
 
-    println!("Token: {}", token.access_token());
+    println!("Token: {:?}", token);
 
     Ok(())
 }

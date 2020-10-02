@@ -78,6 +78,17 @@ fn start_token_server(
 
 pub use oauth2::basic::BasicTokenType;
 pub struct Token(BasicTokenResponse);
+impl std::fmt::Debug for Token {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("Token")
+            .field("access_token", &format_args!("[redacted]"))
+            .field("token_type", &self.token_type())
+            .field("expires_in", &self.expires_in())
+            .field("refresh_token", &self.refresh_token())
+            .field("scopes", &self.scopes())
+            .finish()
+    }
+}
 
 impl Token {
     fn from_response(token_response: BasicTokenResponse) -> Self {
@@ -105,6 +116,7 @@ impl Token {
     }
 }
 
+#[derive(Debug, Clone)]
 pub struct OAuthConfig {
     pub auth_url: String,
     pub token_url: String,
