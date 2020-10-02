@@ -30,8 +30,12 @@ use std::sync::mpsc;
 use oauth2::basic::{BasicClient, BasicTokenResponse};
 use oauth2::{
     AuthUrl, AuthorizationCode, ClientId, ClientSecret, CsrfToken, PkceCodeChallenge, RedirectUrl,
-    Scope, TokenResponse, TokenUrl,
+    TokenResponse, TokenUrl,
 };
+
+pub use oauth2::basic::BasicTokenType as TokenType;
+pub use oauth2::RefreshToken;
+pub use oauth2::Scope;
 
 /// A token response, which contains the access and refresh token as well as metadata like scopes, expiry info and the token type
 pub struct Token(BasicTokenResponse);
@@ -57,7 +61,7 @@ impl Token {
         self.0.access_token().secret()
     }
 
-    pub fn token_type(&self) -> &oauth2::basic::BasicTokenType {
+    pub fn token_type(&self) -> &TokenType {
         self.0.token_type()
     }
 
@@ -65,7 +69,7 @@ impl Token {
         self.0.expires_in()
     }
 
-    pub fn refresh_token(&self) -> Option<&oauth2::RefreshToken> {
+    pub fn refresh_token(&self) -> Option<&RefreshToken> {
         self.0.refresh_token()
     }
 
