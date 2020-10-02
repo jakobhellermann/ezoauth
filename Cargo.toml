@@ -3,6 +3,12 @@ name = "ezoauth"
 version = "0.1.0"
 authors = ["Jakob Hellermann <jakob.hellermann@protonmail.com>"]
 edition = "2018"
+license = "MIT"
+readme = "README.md"
+repository = "https://github.com/jakobhellermann/ezoauth"
+description = "Easy to use OAuth2 client for rust"
+categories = ["authentication"]
+keywords = ["oauth", "client", "authorization", "simple"]
 
 [dependencies]
 thiserror = "1.0"
