@@ -15,6 +15,7 @@ fn main() -> Result<(), ezoauth::Error> {
         redirect_url: redirect_url.to_string(),
         client_id: client_id.to_string(),
         client_secret: client_secret.to_string(),
+        scopes: vec!["identify".into()],
     };
     let (rx, auth_url) = ezoauth::authenticate(config, listen_on)?;
 

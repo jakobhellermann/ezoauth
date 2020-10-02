@@ -58,6 +58,7 @@ pub struct OAuthConfig {
     pub redirect_url: String,
     pub client_id: String,
     pub client_secret: String,
+    pub scopes: Vec<String>,
 }
 
 /// ```rust,no_run
@@ -78,6 +79,7 @@ pub struct OAuthConfig {
 ///     redirect_url: redirect_url.to_string(),
 ///     client_id: client_id.to_string(),
 ///     client_secret: client_secret.to_string(),
+///     scopes: vec!["identify".into()],
 /// };
 /// let (rx, auth_url) = ezoauth::authenticate(config, listen_on)?;
 ///
@@ -105,12 +107,15 @@ pub fn authenticate(
     // Generate a PKCE challenge.
     let (pkce_challenge, pkce_verifier) = PkceCodeChallenge::new_random_sha256();
 
-    // Generate the full authorization URL.
-    let (auth_url, _csrf_token) = client
+    let mut auth_request = client
         .authorize_url(CsrfToken::new_random)
-        .add_scope(Scope::new("guilds".to_string()))
-        .set_pkce_challenge(pkce_challenge)
-        .url();
+        .set_pkce_challenge(pkce_challenge);
+    for scope in config.scopes {
+        auth_request = auth_request.add_scope(Scope::new(scope));
+    }
+
+    // Generate the full authorization URL.
+    let (auth_url, _csrf_token) = auth_request.url();
 
     let token_receiver = server::start_token_server(listen_on, move |auth_code| {
         let token_result = client
