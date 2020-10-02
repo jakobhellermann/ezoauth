@@ -10,12 +10,12 @@ fn main() -> Result<(), ezoauth::Error> {
     let listen_on = "localhost:8000";
 
     let config = OAuthConfig {
-        auth_url: AUTH_URL.to_string(),
-        token_url: TOKEN_URL.to_string(),
-        redirect_url: redirect_url.to_string(),
-        client_id: client_id.to_string(),
-        client_secret: client_secret.to_string(),
-        scopes: vec!["identify".into()],
+        auth_url: AUTH_URL,
+        token_url: TOKEN_URL,
+        redirect_url,
+        client_id,
+        client_secret,
+        scopes: vec!["identify"],
     };
     let (rx, auth_url) = ezoauth::authenticate(config, listen_on)?;
 

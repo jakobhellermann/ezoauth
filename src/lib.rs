@@ -1,16 +1,16 @@
-#![warn(missing_docs)]
+#![warn(missing_docs, rust_2018_idioms)]
 //! An easy to use OAuth2 client flow library based on [oauth2-rs](https://docs.rs/oauth2/).
 //! ```rust,no_run
 //! # fn main() -> Result<(), ezoauth::Error> {
 //! let config = ezoauth::OAuthConfig {
-//!     auth_url: "https://discord.com/api/oauth2/authorize".into(),
-//!     token_url: "https://discord.com/api/oauth2/token".into(),
+//!     auth_url: "https://discord.com/api/oauth2/authorize",
+//!     token_url: "https://discord.com/api/oauth2/token",
 //!     redirect_url: "http://localhost:8000",
-//!     client_id: "...".into(),
-//!     client_secret: "...".into(),
-//!     scopes: vec!["identify".into()],
+//!     client_id: "...",
+//!     client_secret: "...",
+//!     scopes: vec!["identify"],
 //! };
-//! let (rx, auth_url) = ezoauth::authenticate(config, "localhost:8000".to_string())?;
+//! let (rx, auth_url) = ezoauth::authenticate(config, "localhost:8000")?;
 //!
 //! println!("Browse to {}", auth_url);
 //!
@@ -81,13 +81,13 @@ impl Token {
 /// Used to specify how you want to perform your OAuth authentication.
 #[derive(Debug, Clone)]
 #[allow(missing_docs)]
-pub struct OAuthConfig {
-    pub auth_url: String,
-    pub token_url: String,
-    pub redirect_url: String,
-    pub client_id: String,
-    pub client_secret: String,
-    pub scopes: Vec<String>,
+pub struct OAuthConfig<'a> {
+    pub auth_url: &'a str,
+    pub token_url: &'a str,
+    pub redirect_url: &'a str,
+    pub client_id: &'a str,
+    pub client_secret: &'a str,
+    pub scopes: Vec<&'a str>,
 }
 
 /// The `authenticate` function performs the OAuth2 flow.
@@ -105,12 +105,12 @@ pub struct OAuthConfig {
 /// let listen_on = "localhost:8000";
 ///
 /// let config = ezoauth::OAuthConfig {
-///     auth_url: AUTH_URL.to_string(),
-///     token_url: TOKEN_URL.to_string(),
-///     redirect_url: redirect_url.to_string(),
-///     client_id: client_id.to_string(),
-///     client_secret: client_secret.to_string(),
-///     scopes: vec!["identify".into()],
+///     auth_url: AUTH_URL,
+///     token_url: TOKEN_URL,
+///     redirect_url,
+///     client_id,
+///     client_secret,
+///     scopes: vec!["identify"],
 /// };
 /// let (rx, auth_url) = ezoauth::authenticate(config, listen_on)?;
 ///
@@ -123,16 +123,18 @@ pub struct OAuthConfig {
 /// # }
 /// ```
 pub fn authenticate(
-    config: OAuthConfig,
+    config: OAuthConfig<'_>,
     listen_on: &str,
 ) -> Result<(mpsc::Receiver<Result<Token>>, String)> {
     let client = BasicClient::new(
-        ClientId::new(config.client_id),
-        Some(ClientSecret::new(config.client_secret)),
-        AuthUrl::new(config.auth_url).map_err(|_| Error::InvalidUrl)?,
-        Some(TokenUrl::new(config.token_url).map_err(|_| Error::InvalidUrl)?),
+        ClientId::new(config.client_id.to_string()),
+        Some(ClientSecret::new(config.client_secret.to_string())),
+        AuthUrl::new(config.auth_url.to_string()).map_err(|_| Error::InvalidUrl)?,
+        Some(TokenUrl::new(config.token_url.to_string()).map_err(|_| Error::InvalidUrl)?),
     )
-    .set_redirect_url(RedirectUrl::new(config.redirect_url).map_err(|_| Error::InvalidUrl)?);
+    .set_redirect_url(
+        RedirectUrl::new(config.redirect_url.to_string()).map_err(|_| Error::InvalidUrl)?,
+    );
 
     // Generate a PKCE challenge.
     let (pkce_challenge, pkce_verifier) = PkceCodeChallenge::new_random_sha256();
@@ -141,7 +143,7 @@ pub fn authenticate(
         .authorize_url(CsrfToken::new_random)
         .set_pkce_challenge(pkce_challenge);
     for scope in config.scopes {
-        auth_request = auth_request.add_scope(Scope::new(scope));
+        auth_request = auth_request.add_scope(Scope::new(scope.to_string()));
     }
 
     // Generate the full authorization URL.
