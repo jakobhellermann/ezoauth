@@ -132,7 +132,7 @@ pub fn authenticate(
         AuthUrl::new(config.auth_url.to_string()).map_err(|_| Error::InvalidUrl)?,
         Some(TokenUrl::new(config.token_url.to_string()).map_err(|_| Error::InvalidUrl)?),
     )
-    .set_redirect_url(
+    .set_redirect_uri(
         RedirectUrl::new(config.redirect_url.to_string()).map_err(|_| Error::InvalidUrl)?,
     );
 

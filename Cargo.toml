@@ -12,8 +12,8 @@ keywords = ["oauth", "client", "authorization", "simple"]
 
 [dependencies]
 thiserror = "1.0"
-reqwest = { version = "0.10", default-features = false }
-oauth2 = "4.0.0-alpha"
+reqwest = { version = "0.11", default-features = false }
+oauth2 = "4.0"
 
 [dev-dependencies]
 anyhow = "1.0"
